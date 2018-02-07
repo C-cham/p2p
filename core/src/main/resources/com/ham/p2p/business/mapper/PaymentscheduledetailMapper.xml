@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ham.p2p.business.mapper.PaymentScheduleDetailMapper">
+    <resultMap id="BaseResultMap" type="com.ham.p2p.business.domain.PaymentScheduleDetail">
+        <id column="id" property="id"/>
+        <result column="bidAmount" property="bidAmount"/>
+        <result column="bidId" property="bidId"/>
+        <result column="totalAmount" property="totalAmount"/>
+        <result column="principal" property="principal"/>
+        <result column="interest" property="interest"/>
+        <result column="monthIndex" property="monthIndex"/>
+        <result column="deadLine" property="deadLine"/>
+        <result column="bidRequestId" property="bidRequestId"/>
+        <result column="payDate" property="payDate"/>
+        <result column="returnType" property="returnType"/>
+        <result column="paymentScheduleId" property="paymentScheduleId"/>
+        <result column="investorId" property="investorId"/>
+        <association property="borrowUser" javaType="com.ham.p2p.base.domain.Logininfo" columnPrefix="bu_">
+            <id column="id" property="id"/>
+            <result property="username" column="username"/>
+        </association>
+
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ham.p2p.business.domain.PaymentScheduleDetail" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO paymentscheduledetail (bidAmount, bidId, totalAmount, principal, interest, monthIndex,
+                                           deadLine, bidRequestId, payDate, returnType, paymentScheduleId,
+                                           borrowUser_id, investorId)
+        VALUES (#{bidAmount}, #{bidId}, #{totalAmount}, #{principal}, #{interest}, #{monthIndex},
+                              #{deadLine}, #{bidRequestId}, #{payDate}, #{returnType}, #{paymentScheduleId},
+                #{borrowUser.id}, #{investorId})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ham.p2p.business.domain.PaymentScheduleDetail">
+        UPDATE paymentscheduledetail
+        SET bidAmount         = #{bidAmount},
+            bidId             = #{bidId},
+            totalAmount       = #{totalAmount},
+            principal         = #{principal},
+            interest          = #{interest},
+            monthIndex        = #{monthIndex},
+            deadLine          = #{deadLine},
+            bidRequestId      = #{bidRequestId},
+            payDate           = #{payDate},
+            returnType        = #{returnType},
+            paymentScheduleId = #{paymentScheduleId},
+            borrowUser_id     = #{borrowUser.id},
+            investorId        = #{investorId}
+        WHERE id = #{id}
+    </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+            psd.id,
+            psd.bidAmount,
+            psd.bidId,
+            psd.totalAmount,
+            psd.principal,
+            psd.interest,
+            psd.monthIndex,
+            psd.deadLine,
+            psd.bidRequestId,
+            psd.payDate,
+            psd.returnType,
+            psd.paymentScheduleId,
+            psd.investorId,
+            bu.id       bu_id,
+            bu.username bu_username
+        FROM paymentscheduledetail psd
+            JOIN logininfo bu ON bu.id = psd.borrowUser_id
+        WHERE psd.id = #{id}
+    </select>
+    <select id="selectByScheduleId" resultMap="BaseResultMap">
+        SELECT
+            psd.id,
+            psd.bidAmount,
+            psd.bidId,
+            psd.totalAmount,
+            psd.principal,
+            psd.interest,
+            psd.monthIndex,
+            psd.deadLine,
+            psd.bidRequestId,
+            psd.payDate,
+            psd.returnType,
+            psd.paymentScheduleId,
+            psd.investorId,
+            bu.id       bu_id,
+            bu.username bu_username
+        FROM paymentscheduledetail psd
+            JOIN logininfo bu ON bu.id = psd.borrowUser_id
+        WHERE psd.paymentScheduleId = #{paymentScheduleId}
+    </select>
+    <select id="updatePayDate">
+        UPDATE paymentscheduledetail
+        SET payDate = #{payDate}
+        WHERE paymentScheduleId = #{psId}
+    </select>
+</mapper>

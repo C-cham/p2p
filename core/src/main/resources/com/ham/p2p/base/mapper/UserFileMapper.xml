@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ham.p2p.base.mapper.UserFileMapper">
+    <resultMap id="BaseResultMap" type="com.ham.p2p.base.domain.UserFile">
+        <id column="id" property="id"/>
+        <result column="state" property="state"/>
+        <result column="remark" property="remark"/>
+        <result column="auditTime" property="auditTime"/>
+        <result column="applyTime" property="applyTime"/>
+
+        <result column="score" property="score"/>
+        <result column="image" property="image"/>
+        <association property="applier" javaType="com.ham.p2p.base.domain.Logininfo" columnPrefix="ap_">
+            <id property="id" column="id"/>
+            <result column="username" property="username"/>
+        </association>
+        <association property="auditor" javaType="com.ham.p2p.base.domain.Logininfo" columnPrefix="au_">
+            <id property="id" column="id"/>
+            <result column="username" property="username"/>
+        </association>
+        <association property="fileType" column="fileType_id" javaType="com.ham.p2p.base.domain.SystemDictionaryItem"
+                     select="com.ham.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ham.p2p.base.domain.UserFile" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO UserFile (state, remark, auditTime, applyTime, auditor_id, applier_id,
+                              score, image, fileType_id)
+        VALUES (#{state}, #{remark}, #{auditTime}, #{applyTime}, #{auditor.id}, #{applier.id},
+                #{score}, #{image}, #{fileType.id})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ham.p2p.base.domain.UserFile">
+        UPDATE UserFile
+        SET state       = #{state},
+            remark      = #{remark},
+            auditTime   = #{auditTime},
+            applyTime   = #{applyTime},
+            auditor_id  = #{auditor.id},
+            applier_id  = #{applier.id},
+            score       = #{score},
+            image       = #{image},
+            fileType_id = #{fileType.id}
+        WHERE id = #{id}
+    </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+            uf.id,
+            uf.state,
+            uf.remark,
+            uf.auditTime,
+            uf.applyTime,
+            uf.score,
+            uf.image,
+            ap.id       ap_id,
+            ap.username ap_username,
+            au.id       au_id,
+            au.username au_username,
+            uf.fileType_id
+        FROM UserFile uf
+            JOIN logininfo ap ON uf.applier_id = ap.id
+            LEFT JOIN logininfo au ON uf.auditor_id = au.id
+        WHERE uf.id = #{id}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+            uf.id,
+            uf.state,
+            uf.remark,
+            uf.auditTime,
+            uf.applyTime,
+            uf.score,
+            uf.image,
+            ap.id       ap_id,
+            ap.username ap_username,
+            au.id       au_id,
+            au.username au_username,
+            uf.fileType_id
+        FROM UserFile uf
+            JOIN logininfo ap ON uf.applier_id = ap.id
+            LEFT JOIN logininfo au ON uf.auditor_id = au.id
+    </select>
+    <select id="queryUnSelectFileTypeList" resultMap="BaseResultMap">
+        SELECT
+            uf.id,
+            uf.state,
+            uf.remark,
+            uf.auditTime,
+            uf.applyTime,
+            uf.score,
+            uf.image,
+            ap.id       ap_id,
+            ap.username ap_username,
+            au.id       au_id,
+            au.username au_username,
+            uf.fileType_id
+        FROM UserFile uf
+            JOIN logininfo ap ON uf.applier_id = ap.id
+            LEFT JOIN logininfo au ON uf.auditor_id = au.id
+        WHERE uf.applier_id = #{userId}
+    </select>
+    <select id="selectFileTypeByCondition" resultMap="BaseResultMap">
+        SELECT
+        uf.id,
+        uf.state,
+        uf.remark,
+        uf. auditTime,
+        uf. applyTime,
+        uf.score,
+        uf. image,
+        ap.id ap_id,
+        ap.username ap_username,
+        au.id au_id,
+        au.username au_username,
+        uf.fileType_id
+        FROM UserFile uf
+        JOIN logininfo ap ON uf.applier_id = ap.id
+        LEFT JOIN logininfo au ON uf.auditor_id = au.id
+        WHERE uf.applier_id = #{userId}
+        <if test="b">
+            and uf.fileType_id is not NULL
+        </if>
+        <if test="!b">
+            and uf.fileType_id is NULL
+        </if>
+    </select>
+    <select id="queryPage" resultMap="BaseResultMap">
+        SELECT
+        uf.id,
+        uf.state,
+        uf.remark,
+        uf. auditTime,
+        uf. applyTime,
+        uf.score,
+        uf. image,
+        ap.id ap_id,
+        ap.username ap_username,
+        au.id au_id,
+        au.username au_username,
+        uf.fileType_id
+        FROM UserFile uf
+        JOIN logininfo ap ON uf.applier_id = ap.id
+        LEFT JOIN logininfo au ON uf.auditor_id = au.id
+        <include refid="base_where"/>
+    </select>
+    <select id="queryByUserId" resultMap="BaseResultMap">
+        SELECT
+            uf.id,
+            uf.state,
+            uf.remark,
+            uf. auditTime,
+            uf. applyTime,
+            uf.score,
+            uf. image,
+            ap.id ap_id,
+            ap.username ap_username,
+            au.id au_id,
+            au.username au_username,
+            uf.fileType_id
+        FROM UserFile uf
+            JOIN logininfo ap ON uf.applier_id = ap.id
+            LEFT JOIN logininfo au ON uf.auditor_id = au.id
+        WHERE uf.applier_id = #{userId} AND  uf.state=#{statePass}
+    </select>
+    <sql id="base_where">
+        <where>
+            <if test="selectFileType">
+              and uf.fileType_id is not null
+            </if>
+        </where>
+    </sql>
+</mapper>

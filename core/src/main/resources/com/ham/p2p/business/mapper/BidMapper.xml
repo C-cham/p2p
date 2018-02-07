@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ham.p2p.business.mapper.BidMapper">
+    <resultMap id="BaseResultMap" type="com.ham.p2p.business.domain.Bid">
+        <id column="id" property="id"/>
+        <result column="actualRate" property="actualRate"/>
+        <result column="availableAmount" property="availableAmount"/>
+        <result column="bidrequestId" property="bidRequestId"/>
+        <result column="bidTime" property="bidTime"/>
+        <result column="bidRequestTitle" property="bidRequestTitle"/>
+        <result column="bidRequestState" property="bidRequestState"/>
+        <association property="bidUser" javaType="com.ham.p2p.base.domain.Logininfo" columnPrefix="bu_">
+            <id column="id" property="id"/>
+            <result property="username" column="username"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ham.p2p.business.domain.Bid" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bid (actualRate, availableAmount, bidrequestId, bidUser_id, bidTime,
+                         bidRequestTitle, bidRequestState)
+        VALUES (#{actualRate}, #{availableAmount}, #{bidRequestId}, #{bidUser.id}, #{bidTime},
+                #{bidRequestTitle}, #{bidRequestState})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.ham.p2p.business.domain.Bid">
+        UPDATE bid
+        SET actualRate      = #{actualRate},
+            availableAmount = #{availableAmount},
+            bidRequestId    = #{bidRequestId},
+            bidUser_id      = #{bidUser.id},
+            bidTime         = #{bidTime},
+            bidRequestTitle = #{bidRequestTitle},
+            bidRequestState = #{bidRequestState}
+        WHERE id = #{id}
+    </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+            b.id,
+            b.actualRate,
+            b.availableAmount,
+            b.bidRequestId,
+            b.bidUser_id,
+            b.bidTime,
+            b.bidRequestTitle,
+            b.bidRequestState,
+            bu.id       bu_id,
+            bu.username bu_username
+        FROM bid b
+            JOIN logininfo bu ON b.bidUser_id = bu.id
+        WHERE b.id = #{id}
+    </select>
+
+    <select id="queryListByRequestId" resultMap="BaseResultMap">
+        SELECT
+            b.id,
+            b.actualRate,
+            b.availableAmount,
+            b.bidrequestId,
+            b.bidUser_id,
+            b.bidTime,
+            b.bidRequestTitle,
+            b.bidRequestState,
+            bu.id       bu_id,
+            bu.username bu_username
+        FROM bid b
+            JOIN logininfo bu ON b.bidUser_id = bu.id
+        WHERE b.bidRequestId = #{bidRequestId}
+    </select>
+    <select id="updateState">
+        UPDATE bid
+        SET bidRequestState = #{bidrequestState}
+        WHERE bidrequestId = #{bidRequestId}
+    </select>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ham.p2p.base.mapper.LogininfoMapper">
+    <resultMap id="BaseResultMap" type="com.ham.p2p.base.domain.Logininfo">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="state" property="state"/>
+        <result column="userType" property="userType"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO logininfo (username, password, state, userType)
+        VALUES (#{username}, #{password}, #{state}, #{userType})
+    </insert>
+    <select id="selectCountByUsername" resultType="int">
+        SELECT count(id)
+        FROM logininfo
+        WHERE username = #{username}
+    </select>
+    <select id="login" resultType="com.ham.p2p.base.domain.Logininfo">
+        SELECT
+            id,
+            username,
+            password,
+            state
+        FROM logininfo
+        WHERE username = #{username} AND password = #{password} AND userType = #{userType}
+    </select>
+    <select id="queryCountByUserType" resultType="int">
+        SELECT count(id)
+        FROM logininfo
+        WHERE userType = #{userType}
+    </select>
+    <select id="autoComplate" resultType="map">
+        SELECT
+            id,
+            username
+        FROM logininfo
+        WHERE username LIKE concat(#{keyword}, '%') AND userType = #{userType}
+
+    </select>
+</mapper>
